@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"url-shortener/internal/config"
+	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/lib/logger/sl"
 	"url-shortener/internal/storage/sqlite"
 
@@ -38,6 +39,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	_ = storage
+
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
@@ -54,8 +57,8 @@ func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 
 	switch env {
-	// case envLocal:
-	// 	log = setupPrettySlog()
+	case envLocal:
+		log = setupPrettySlog()
 	case envDev:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
@@ -71,4 +74,16 @@ func setupLogger(env string) *slog.Logger {
 	}
 
 	return log
+}
+
+func setupPrettySlog() *slog.Logger {
+	opts := slogpretty.PrettyHandlerOptions{
+		SlogOpts: &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		},
+	}
+
+	handler := opts.NewPrettyHandler(os.Stdout)
+
+	return slog.New(handler)
 }
