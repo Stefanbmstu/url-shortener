@@ -30,8 +30,9 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	log.Info("Starting URL Shortener", slog.String("env", cfg.Env))
+	log.Info("starting url-hortener", slog.String("env", cfg.Env))
 	log.Debug("debug is enabled")
+	log.Error("error is enabled")
 
 	storage, err := sqlite.New(cfg.StoragePath)
 	if err != nil {
