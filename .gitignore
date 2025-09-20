@@ -1,0 +1,18 @@
+# Binaries
+/bin/
+/out/
+
+# Dependencies
+/vendor/
+
+# Logs, DB, временные файлы
+/storage/
+*.log
+*.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
