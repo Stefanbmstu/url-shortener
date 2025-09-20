@@ -105,6 +105,17 @@ func TestURLShortener_SaveRedirect(t *testing.T) {
 			// Redirect
 
 			testRedirect(t, alias, tc.url)
+
+			// Remove
+			reqDel := e.DELETE("/url/"+alias).
+				WithBasicAuth("myuser", "mypass").
+				Expect().Status(http.StatusOK).
+				JSON().Object()
+
+			reqDel.Value("status").String().IsEqual("OK")
+
+			// Redirect should fail now
+			testRedirectNotFound(t, alias)
 		})
 	}
 }
@@ -122,37 +133,13 @@ func testRedirect(t *testing.T, alias string, urlToRedirect string) {
 	require.Equal(t, urlToRedirect, redirectedToURL)
 }
 
-//nolint:funlen
-func TestURLShortener_Delete(t *testing.T) {
+func testRedirectNotFound(t *testing.T, alias string) {
 	u := url.URL{
 		Scheme: "http",
 		Host:   host,
+		Path:   alias,
 	}
-	e := httpexpect.Default(t, u.String())
 
-	// 1. Save URL
-	originalURL := gofakeit.URL()
-	alias := random.NewRandomString(10)
-
-	resp := e.POST("/url").
-		WithJSON(save.Request{
-			URL:   originalURL,
-			Alias: alias,
-		}).
-		WithBasicAuth("myuser", "mypass").
-		Expect().
-		Status(http.StatusOK).
-		JSON().Object()
-
-	resp.Value("alias").String().IsEqual(alias)
-
-	// 2. Check redirect works BEFORE deletion
-	testRedirect(t, alias, originalURL)
-
-	// 3. DELETE the alias
-	e.DELETE("/url/"+alias).
-		WithBasicAuth("myuser", "mypass").
-		Expect().
-		Status(http.StatusOK).
-		JSON().Object()
+	_, err := api.GetRedirect(u.String())
+	require.ErrorIs(t, err, api.ErrInvalidStatusCode)
 }
