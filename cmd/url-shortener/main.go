@@ -12,6 +12,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
+	"url-shortener/internal/http-server/handlers/redirect"
 	"url-shortener/internal/http-server/handlers/url/save"
 	mwLogger "url-shortener/internal/http-server/middleware/logger"
 
@@ -53,7 +54,7 @@ func main() {
 	router.Use(middleware.URLFormat)
 
 	router.Post("/url", save.New(log, storage))
-	// router.Get("/{alias}", redirect.New(log, storage))
+	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting http server", slog.String("address", cfg.Address))
 
