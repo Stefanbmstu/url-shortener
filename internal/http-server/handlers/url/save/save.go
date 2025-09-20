@@ -29,6 +29,7 @@ type Response struct {
 // TODO: move to config if needed
 const aliasLength = 6
 
+//go:generate mockery --name=URLSaver --output=internal/mocks --outpkg=mocks
 type URLSaver interface {
 	SaveURL(urlToSave string, alias string) (int64, error)
 }
